@@ -1,0 +1,55 @@
+# dependencies
+node_modules/
+.pnpm-debug.log
+
+# SvelteKit
+.svelte-kit/
+build/
+dist/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local customer configurations (Multi-tenant)
+.kv-mock/*.json
+.kv-mock/managers/*.json
+!.kv-mock/.gitkeep
+!.kv-mock/managers/.gitkeep
+
+# Cloudflare
+.wrangler/
+wrangler.toml.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Playwright
+playwright-report/
+playwright/.auth/
+test-results/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
