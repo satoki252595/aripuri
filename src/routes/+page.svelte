@@ -212,7 +212,7 @@
                     </div>
                   </button>
                 {:else}
-                  <button class="suggestion-card" on:click={() => selectSuggestion(card.no)}>
+                  <button class="suggestion-card" class:rarity-4={card.rarity === 4} on:click={() => selectSuggestion(card.no)}>
                     <img
                       src={getCardImageUrl(card)}
                       alt={card.name}
@@ -313,7 +313,7 @@
               </div>
             </div>
           {:else if card}
-            <button class="card-item" on:click={() => showCardPreview(card)}>
+            <button class="card-item" class:rarity-4={card.rarity === 4} on:click={() => showCardPreview(card)}>
               <div class="card-order">{i + 1}</div>
               <img
                 src={getCardImageUrl(card)}
@@ -597,6 +597,21 @@
     color: white;
   }
 
+  /* サジェスト内の星4カード */
+  .suggestion-card.rarity-4 {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, #fffef5 0%, #fff9e6 100%);
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.25);
+  }
+
+  .suggestion-card.rarity-4 .suggestion-no {
+    color: #b8860b;
+  }
+
+  .suggestion-card.rarity-4 .suggestion-name {
+    color: #8b6914;
+  }
+
   .search-summary {
     margin-top: 16px;
     padding: 14px;
@@ -816,6 +831,21 @@
   .card-item:active {
     border-color: #ff69b4;
     transform: scale(0.95);
+  }
+
+  /* 星4カードのハイライト */
+  .card-item.rarity-4 {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, #fffef5 0%, #fff9e6 100%);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  }
+
+  .card-item.rarity-4 .card-order {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb800 100%);
+  }
+
+  .card-item.rarity-4 .card-name {
+    color: #b8860b;
   }
 
   .card-order {
