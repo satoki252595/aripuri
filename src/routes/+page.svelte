@@ -130,13 +130,13 @@
             maxlength="3"
           />
           {#if firstCard}
-            <div class="input-card-preview">
+            <button class="input-card-preview" on:click={() => showCardPreview(firstCard)}>
               <img
                 src={getCardImageUrl(firstCard)}
                 alt={firstCard.name}
                 on:error={(e) => { e.currentTarget.style.display = 'none'; }}
               />
-            </div>
+            </button>
           {/if}
         </div>
         {#if firstCard}
@@ -178,13 +178,13 @@
               maxlength="3"
             />
             {#if secondCard}
-              <div class="input-card-preview">
+              <button class="input-card-preview" on:click={() => showCardPreview(secondCard)}>
                 <img
                   src={getCardImageUrl(secondCard)}
                   alt={secondCard.name}
                   on:error={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
-              </div>
+              </button>
             {/if}
           </div>
           {#if secondCard}
@@ -466,12 +466,23 @@
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     flex-shrink: 0;
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .input-card-preview:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
   }
 
   .input-card-preview img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
   }
 
   .card-detail {
