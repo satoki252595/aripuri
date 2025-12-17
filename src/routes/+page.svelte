@@ -251,7 +251,6 @@
         </div>
         <div class="search-result-badge">
           <span class="cylinder-badge">配列{selectedMatch.cylinderId}</span>
-          <span class="position-text">No.{selectedMatch.rowPosition}</span>
         </div>
       </div>
     {/if}
@@ -274,7 +273,6 @@
               <span class="cylinder-name">{match.cylinderName}</span>
             </div>
             <div class="match-sub">
-              <span class="position">No.{match.rowPosition} - {match.cardIndex + 1}枚目</span>
               <span class="remaining">残り{match.remainingCards.length}枚</span>
             </div>
           </button>
@@ -288,7 +286,6 @@
     <section class="sequence-section">
       <div class="sequence-header">
         <h2>{selectedMatch.cylinderName}</h2>
-        <p class="sequence-position">No.{selectedMatch.rowPosition} / {selectedMatch.cardIndex + 1}枚目から</p>
         <button class="back-btn" on:click={() => selectedMatch = null}>
           ← 候補一覧に戻る
         </button>
@@ -682,12 +679,6 @@
     font-weight: bold;
   }
 
-  .position-text {
-    color: #2e7d32;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
   .reset-btn {
     width: 100%;
     padding: 14px;
@@ -781,19 +772,13 @@
     font-weight: 500;
   }
 
-  .position, .remaining {
+  .remaining {
     color: #888;
     font-size: 12px;
   }
 
   .sequence-header {
     margin-bottom: 16px;
-  }
-
-  .sequence-position {
-    color: #666;
-    font-size: 14px;
-    margin: 4px 0 14px 0;
   }
 
   .back-btn {
