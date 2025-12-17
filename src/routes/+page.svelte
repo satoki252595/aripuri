@@ -7,7 +7,6 @@
   let matches: SearchMatch[] = [];
   let selectedMatch: SearchMatch | null = null;
   let previewCard: Card | null = null;
-  let showSuggestions = false;
 
   // Get card objects for display
   $: firstCard = firstCardNo ? getCard(firstCardNo.padStart(2, '0')) : null;
@@ -49,7 +48,6 @@
     } else {
       selectedMatch = null;
     }
-    showSuggestions = false;
   }
 
   function selectSuggestion(cardNo: string) {
@@ -74,17 +72,6 @@
     secondCardNo = '';
     matches = [];
     selectedMatch = null;
-    showSuggestions = false;
-  }
-
-  function handleSecondFocus() {
-    showSuggestions = true;
-  }
-
-  function handleSecondBlur() {
-    setTimeout(() => {
-      showSuggestions = false;
-    }, 200);
   }
 </script>
 
@@ -149,8 +136,6 @@
               placeholder="01"
               bind:value={secondCardNo}
               on:input={handleSecondSearch}
-              on:focus={handleSecondFocus}
-              on:blur={handleSecondBlur}
               maxlength="3"
             />
             {#if secondCard}
@@ -172,7 +157,7 @@
         </div>
 
         <!-- オートコンプリート候補 -->
-        {#if showSuggestions && possibleNextCards.length > 0 && !secondCardNo}
+        {#if possibleNextCards.length > 0 && !secondCardNo}
           <div class="suggestions">
             <p class="suggestions-label">次に来る可能性があるカード:</p>
             <div class="suggestions-grid">
@@ -227,6 +212,9 @@
   {#if matches.length > 0 && !selectedMatch}
     <section class="results-section">
       <h2>候補配列 ({matches.length}件)</h2>
+      {#if matches.length > 1 && secondCardNo}
+        <p class="multiple-matches-note">複数の配列が該当します。タップして選択してください。</p>
+      {/if}
       <div class="matches-list">
         {#each matches as match}
           <button class="match-card" on:click={() => selectMatch(match)}>
@@ -599,6 +587,16 @@
     font-size: 17px;
     color: #333;
     margin: 0 0 14px 0;
+  }
+
+  .multiple-matches-note {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #856404;
   }
 
   .matches-list {

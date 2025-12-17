@@ -45,10 +45,17 @@ export function searchByTwoCards(firstCardNo: string, secondCardNo: string): Sea
   const firstMatches = searchByFirstCard(firstCardNo);
   const normalizedSecondNo = secondCardNo.padStart(2, '0');
 
-  return firstMatches.filter(match => {
-    if (match.remainingCards.length === 0) return false;
-    return match.remainingCards[0] === normalizedSecondNo;
-  });
+  return firstMatches
+    .filter(match => {
+      if (match.remainingCards.length === 0) return false;
+      return match.remainingCards[0] === normalizedSecondNo;
+    })
+    .map(match => ({
+      ...match,
+      // Update remainingCards to show cards AFTER the 2nd card
+      remainingCards: match.remainingCards.slice(1),
+      cardIndex: match.cardIndex + 1 // Now pointing to 2nd card position
+    }));
 }
 
 export function getRemainingSequence(match: SearchMatch): Card[] {
