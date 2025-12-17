@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { searchByFirstCard, searchByTwoCards, getCard, getCardImageUrl, getRemainingSequence, getRarityStars } from '$lib/search';
+  import { searchByFirstCard, searchByTwoCards, getCard, getCardImageUrl, getRemainingSequence, getRarityStars, normalizeCardNo, getCardType, getPCards } from '$lib/search';
   import type { SearchMatch, Card } from '$lib/types';
 
   let firstCardNo = '';
@@ -8,11 +8,14 @@
   let selectedMatch: SearchMatch | null = null;
   let previewCard: Card | null = null;
 
-  // Get card objects for display
-  $: firstCard = firstCardNo ? getCard(firstCardNo.padStart(2, '0')) : null;
-  $: secondCard = secondCardNo ? getCard(secondCardNo.padStart(2, '0')) : null;
+  // P cards for quick selection
+  const pCards = getPCards();
 
-  // Get possible next cards for autocomplete
+  // Get card objects for display
+  $: firstCard = firstCardNo ? getCard(normalizeCardNo(firstCardNo)) : null;
+  $: secondCard = secondCardNo ? getCard(normalizeCardNo(secondCardNo)) : null;
+
+  // Get possible next cards for autocomplete (including special cards)
   $: possibleNextCards = (() => {
     if (matches.length === 0) return [];
     const cardNos = new Set<string>();
@@ -22,9 +25,20 @@
       }
     }
     return Array.from(cardNos)
-      .map(no => getCard(no))
+      .map(no => {
+        // Handle サプライズランダム specially
+        if (no === 'サプライズランダム') {
+          return { no, name: 'サプライズ', rarity: 4, isSpecial: true } as Card & { isSpecial?: boolean };
+        }
+        return getCard(no);
+      })
       .filter((card): card is Card => card !== undefined)
-      .sort((a, b) => parseInt(a.no) - parseInt(b.no));
+      .sort((a, b) => {
+        // サプライズランダム goes last
+        if (a.no === 'サプライズランダム') return 1;
+        if (b.no === 'サプライズランダム') return -1;
+        return parseInt(a.no) - parseInt(b.no);
+      });
   })();
 
   function handleFirstSearch() {
@@ -32,17 +46,14 @@
       matches = [];
       return;
     }
-    const normalized = firstCardNo.padStart(2, '0');
-    matches = searchByFirstCard(normalized);
+    matches = searchByFirstCard(firstCardNo);
     selectedMatch = null;
     secondCardNo = '';
   }
 
   function handleSecondSearch() {
     if (!firstCardNo || !secondCardNo) return;
-    const normalizedFirst = firstCardNo.padStart(2, '0');
-    const normalizedSecond = secondCardNo.padStart(2, '0');
-    matches = searchByTwoCards(normalizedFirst, normalizedSecond);
+    matches = searchByTwoCards(firstCardNo, secondCardNo);
     if (matches.length === 1) {
       selectedMatch = matches[0];
     } else {
@@ -72,6 +83,21 @@
     secondCardNo = '';
     matches = [];
     selectedMatch = null;
+  }
+
+  function selectPCard(cardNo: string, target: 'first' | 'second') {
+    if (target === 'first') {
+      firstCardNo = cardNo;
+      handleFirstSearch();
+    } else {
+      secondCardNo = cardNo;
+      handleSecondSearch();
+    }
+  }
+
+  // Check if card is a special type for styling
+  function isSpecialCard(cardNo: string): boolean {
+    return cardNo === 'サプライズランダム';
   }
 </script>
 
@@ -120,6 +146,19 @@
           </div>
         {/if}
       </div>
+      <!-- Pカード選択ボタン -->
+      <div class="p-card-buttons">
+        <span class="p-card-label">P:</span>
+        {#each pCards as pCard}
+          <button
+            class="p-card-btn"
+            class:selected={firstCardNo === pCard.no}
+            on:click={() => selectPCard(pCard.no, 'first')}
+          >
+            {pCard.no}
+          </button>
+        {/each}
+      </div>
     </div>
 
     <!-- 2枚目入力 -->
@@ -162,17 +201,29 @@
             <p class="suggestions-label">次に来る可能性があるカード:</p>
             <div class="suggestions-grid">
               {#each possibleNextCards as card}
-                <button class="suggestion-card" on:click={() => selectSuggestion(card.no)}>
-                  <img
-                    src={getCardImageUrl(card)}
-                    alt={card.name}
-                    on:error={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                  <div class="suggestion-info">
-                    <span class="suggestion-no">{card.no}</span>
-                    <span class="suggestion-name">{card.name}</span>
-                  </div>
-                </button>
+                {#if isSpecialCard(card.no)}
+                  <button class="suggestion-card suggestion-special" on:click={() => selectSuggestion(card.no)}>
+                    <div class="suggestion-special-face">
+                      <span class="suggestion-special-icon">?</span>
+                    </div>
+                    <div class="suggestion-info">
+                      <span class="suggestion-no special">SP</span>
+                      <span class="suggestion-name">サプライズ</span>
+                    </div>
+                  </button>
+                {:else}
+                  <button class="suggestion-card" on:click={() => selectSuggestion(card.no)}>
+                    <img
+                      src={getCardImageUrl(card)}
+                      alt={card.name}
+                      on:error={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <div class="suggestion-info">
+                      <span class="suggestion-no">{card.no}</span>
+                      <span class="suggestion-name">{card.name}</span>
+                    </div>
+                  </button>
+                {/if}
               {/each}
             </div>
           </div>
@@ -243,23 +294,40 @@
         </button>
       </div>
 
-      <h3>次以降のカード ({getRemainingSequence(selectedMatch).length}枚)</h3>
+      <h3>次以降のカード ({selectedMatch.remainingCards.length}枚)</h3>
       <div class="sequence-cards">
-        {#each getRemainingSequence(selectedMatch) as card, i}
-          <button class="card-item" on:click={() => showCardPreview(card)}>
-            <div class="card-order">{i + 1}</div>
-            <img
-              src={getCardImageUrl(card)}
-              alt={card.name}
-              loading="lazy"
-              on:error={(e) => { e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect fill=%22%23eee%22 width=%22100%22 height=%22140%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23999%22%3ENo Image%3C/text%3E%3C/svg%3E'; }}
-            />
-            <div class="card-info">
-              <span class="card-no">{card.no}</span>
-              <span class="card-name">{card.name}</span>
-              <span class="card-rarity">{getRarityStars(card.rarity)}</span>
+        {#each selectedMatch.remainingCards as cardNo, i}
+          {@const card = getCard(cardNo)}
+          {#if isSpecialCard(cardNo)}
+            <!-- サプライズランダムなど特殊カード -->
+            <div class="card-item special-card">
+              <div class="card-order">{i + 1}</div>
+              <div class="special-card-face">
+                <span class="special-icon">?</span>
+                <span class="special-label">サプライズ</span>
+              </div>
+              <div class="card-info">
+                <span class="card-no special">SP</span>
+                <span class="card-name special">ランダム</span>
+                <span class="card-rarity">?</span>
+              </div>
             </div>
-          </button>
+          {:else if card}
+            <button class="card-item" on:click={() => showCardPreview(card)}>
+              <div class="card-order">{i + 1}</div>
+              <img
+                src={getCardImageUrl(card)}
+                alt={card.name}
+                loading="lazy"
+                on:error={(e) => { e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect fill=%22%23eee%22 width=%22100%22 height=%22140%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23999%22%3ENo Image%3C/text%3E%3C/svg%3E'; }}
+              />
+              <div class="card-info">
+                <span class="card-no">{card.no}</span>
+                <span class="card-name">{card.name}</span>
+                <span class="card-rarity">{getRarityStars(card.rarity)}</span>
+              </div>
+            </button>
+          {/if}
         {/each}
       </div>
     </section>
@@ -490,6 +558,43 @@
     display: block;
     font-size: 11px;
     color: #666;
+  }
+
+  /* サジェスト内の特殊カード */
+  .suggestion-special {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+  }
+
+  .suggestion-special:active {
+    background: linear-gradient(135deg, #5a6fd6 0%, #6a4292 100%);
+    border-color: #5a6fd6;
+  }
+
+  .suggestion-special-face {
+    width: 100%;
+    aspect-ratio: 5/7;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+
+  .suggestion-special-icon {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .suggestion-no.special {
+    color: white;
+  }
+
+  .suggestion-special .suggestion-name {
+    color: white;
   }
 
   .search-summary {
@@ -834,5 +939,81 @@
 
   .close-btn:active {
     background: #e0e0e0;
+  }
+
+  /* Pカードボタン */
+  .p-card-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .p-card-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff69b4;
+  }
+
+  .p-card-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #fff0f5;
+    border: 2px solid #ffb6c1;
+    border-radius: 8px;
+    color: #ff69b4;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .p-card-btn:active,
+  .p-card-btn.selected {
+    background: #ff69b4;
+    border-color: #ff69b4;
+    color: white;
+  }
+
+  /* 特殊カード（サプライズランダム） */
+  .special-card {
+    cursor: default;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+  }
+
+  .special-card-face {
+    width: 100%;
+    aspect-ratio: 5/7;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .special-icon {
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .special-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  .special-card .card-order {
+    background: #667eea;
+  }
+
+  .card-info .card-no.special,
+  .card-info .card-name.special {
+    color: #667eea;
   }
 </style>
