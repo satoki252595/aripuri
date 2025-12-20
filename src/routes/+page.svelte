@@ -105,13 +105,29 @@
 <main>
   <header>
     <h1>アイプリ配列検索</h1>
-    <p class="subtitle">リング5弾</p>
+    <p class="subtitle">ハッピーイースター！リング5弾</p>
   </header>
+
+  <!-- 使い方ガイド -->
+  {#if !firstCardNo}
+    <section class="guide-section">
+      <h2>使い方</h2>
+      <ol class="guide-steps">
+        <li><strong>1枚目</strong>のカード番号を入力</li>
+        <li><strong>2枚目</strong>のカード番号を入力して絞り込み</li>
+        <li>該当する<strong>2つのシリンダー</strong>の配列を同時に確認</li>
+      </ol>
+      <p class="guide-note">※ 筐体には2つのシリンダーがあり、どちらが出るかはランダムです</p>
+    </section>
+  {/if}
 
   <section class="search-section">
     <!-- 1枚目入力 -->
     <div class="card-input-group">
-      <label for="first-card">1枚目のカードNo</label>
+      <div class="step-indicator">
+        <span class="step-number">1</span>
+        <label for="first-card">1枚目のカードNo</label>
+      </div>
       <div class="card-input-row">
         <div class="input-with-preview">
           <input
@@ -159,7 +175,10 @@
     <!-- 2枚目入力 -->
     {#if matches.length > 0}
       <div class="card-input-group">
-        <label for="second-card">2枚目のカードNo（絞り込み）</label>
+        <div class="step-indicator">
+          <span class="step-number">2</span>
+          <label for="second-card">2枚目のカードNo</label>
+        </div>
         <div class="card-input-row">
           <div class="input-with-preview">
             <input
@@ -275,13 +294,22 @@
 
   <!-- 次以降のカード表示（2枚目入力後、全シリンダー表示） -->
   {#if matches.length > 0 && secondCardNo}
+    {#if matches.length >= 2}
+      <div class="dual-cylinder-notice">
+        <span class="notice-icon">🎰</span>
+        <span class="notice-text">2つのシリンダーが該当します（どちらが出るかはランダム）</span>
+      </div>
+    {/if}
     {#each matches as match, matchIndex}
-      <section class="sequence-section" class:second-cylinder={matchIndex > 0}>
+      <section class="sequence-section cylinder-{matchIndex + 1}">
         <div class="sequence-header">
-          <div class="cylinder-header-badge">
+          <div class="cylinder-header-badge cylinder-color-{matchIndex + 1}">
             <span class="cylinder-id-large">配列{match.cylinderId}</span>
             <span class="cylinder-name-sub">{match.cylinderName}</span>
           </div>
+          {#if matches.length >= 2}
+            <span class="cylinder-label">{matchIndex === 0 ? 'シリンダー①' : 'シリンダー②'}</span>
+          {/if}
         </div>
 
         <h3>次以降のカード ({match.remainingCards.length}枚)</h3>
@@ -393,6 +421,67 @@
     color: #888;
     font-size: 13px;
     margin: 0;
+  }
+
+  /* 使い方ガイド */
+  .guide-section {
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.15);
+    margin-bottom: 12px;
+  }
+
+  .guide-section h2 {
+    font-size: 15px;
+    color: #ff69b4;
+    margin: 0 0 12px 0;
+  }
+
+  .guide-steps {
+    margin: 0;
+    padding-left: 24px;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .guide-steps strong {
+    color: #ff69b4;
+  }
+
+  .guide-note {
+    margin: 12px 0 0 0;
+    padding: 10px 12px;
+    background: #fff8fa;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #888;
+  }
+
+  /* ステップインジケーター */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .step-number {
+    width: 24px;
+    height: 24px;
+    background: #ff69b4;
+    color: white;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-indicator label {
+    margin-bottom: 0;
   }
 
   .search-section {
@@ -773,6 +862,11 @@
 
   .sequence-header {
     margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .cylinder-header-badge {
@@ -795,9 +889,54 @@
     font-size: 14px;
   }
 
-  .second-cylinder {
-    border-top: 3px dashed #ffb6c1;
-    padding-top: 16px;
+  /* 2シリンダー表示の通知 */
+  .dual-cylinder-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 2px solid #64b5f6;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  .notice-icon {
+    font-size: 20px;
+  }
+
+  .notice-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1565c0;
+  }
+
+  /* シリンダー1（ピンク系） */
+  .cylinder-1 {
+    border-left: 4px solid #ff69b4;
+  }
+
+  .cylinder-color-1 .cylinder-id-large {
+    background: #ff69b4;
+  }
+
+  /* シリンダー2（ブルー系） */
+  .cylinder-2 {
+    border-left: 4px solid #42a5f5;
+  }
+
+  .cylinder-color-2 .cylinder-id-large {
+    background: #42a5f5;
+  }
+
+  .cylinder-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    padding: 4px 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
   }
 
   h3 {
