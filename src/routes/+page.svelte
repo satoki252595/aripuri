@@ -193,6 +193,7 @@
         <div class="input-row">
           <input
             type="text"
+            inputmode="numeric"
             placeholder="No"
             bind:value={cyl1FirstCardNo}
             on:input={handleCyl1FirstSearch}
@@ -218,6 +219,7 @@
           <div class="input-row">
             <input
               type="text"
+              inputmode="numeric"
               placeholder="No"
               bind:value={cyl1SecondCardNo}
               on:input={handleCyl1SecondSearch}
@@ -303,6 +305,7 @@
         <div class="input-row">
           <input
             type="text"
+            inputmode="numeric"
             placeholder="No"
             bind:value={cyl2FirstCardNo}
             on:input={handleCyl2FirstSearch}
@@ -328,6 +331,7 @@
           <div class="input-row">
             <input
               type="text"
+              inputmode="numeric"
               placeholder="No"
               bind:value={cyl2SecondCardNo}
               on:input={handleCyl2SecondSearch}
