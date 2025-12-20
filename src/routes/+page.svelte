@@ -5,7 +5,6 @@
   let firstCardNo = '';
   let secondCardNo = '';
   let matches: SearchMatch[] = [];
-  let selectedMatch: SearchMatch | null = null;
   let previewCard: Card | null = null;
 
   // P cards for quick selection
@@ -47,27 +46,24 @@
       return;
     }
     matches = searchByFirstCard(firstCardNo);
-    selectedMatch = null;
     secondCardNo = '';
   }
 
   function handleSecondSearch() {
-    if (!firstCardNo || !secondCardNo) return;
-    matches = searchByTwoCards(firstCardNo, secondCardNo);
-    if (matches.length === 1) {
-      selectedMatch = matches[0];
-    } else {
-      selectedMatch = null;
+    if (!firstCardNo) return;
+
+    // 2枚目が空の場合、1枚目の検索結果に戻す
+    if (!secondCardNo) {
+      matches = searchByFirstCard(firstCardNo);
+      return;
     }
+
+    matches = searchByTwoCards(firstCardNo, secondCardNo);
   }
 
   function selectSuggestion(cardNo: string) {
     secondCardNo = cardNo;
     handleSecondSearch();
-  }
-
-  function selectMatch(match: SearchMatch) {
-    selectedMatch = match;
   }
 
   function showCardPreview(card: Card) {
@@ -82,7 +78,6 @@
     firstCardNo = '';
     secondCardNo = '';
     matches = [];
-    selectedMatch = null;
   }
 
   function selectPCard(cardNo: string, target: 'first' | 'second') {
@@ -232,7 +227,7 @@
     {/if}
 
     <!-- 検索結果サマリー -->
-    {#if selectedMatch}
+    {#if matches.length > 0 && secondCardNo && secondCard}
       <div class="search-summary">
         <div class="search-cards">
           {#if firstCard}
@@ -242,15 +237,15 @@
             </div>
           {/if}
           <span class="arrow">→</span>
-          {#if secondCard}
-            <div class="summary-card">
-              <img src={getCardImageUrl(secondCard)} alt={secondCard.name} />
-              <span>{secondCard.no}</span>
-            </div>
-          {/if}
+          <div class="summary-card">
+            <img src={getCardImageUrl(secondCard)} alt={secondCard.name} />
+            <span>{secondCard.no}</span>
+          </div>
         </div>
         <div class="search-result-badge">
-          <span class="cylinder-badge">配列{selectedMatch.cylinderId}</span>
+          {#each matches as match}
+            <span class="cylinder-badge">配列{match.cylinderId}</span>
+          {/each}
         </div>
       </div>
     {/if}
@@ -258,16 +253,13 @@
     <button class="reset-btn" on:click={reset}>リセット</button>
   </section>
 
-  <!-- 候補配列一覧 -->
-  {#if matches.length > 0 && !selectedMatch}
+  <!-- 候補配列一覧（1枚目のみ入力時） -->
+  {#if matches.length > 0 && !secondCardNo}
     <section class="results-section">
       <h2>候補配列 ({matches.length}件)</h2>
-      {#if matches.length > 1 && secondCardNo}
-        <p class="multiple-matches-note">複数の配列が該当します。タップして選択してください。</p>
-      {/if}
       <div class="matches-list">
         {#each matches as match}
-          <button class="match-card" on:click={() => selectMatch(match)}>
+          <div class="match-card">
             <div class="match-main">
               <span class="cylinder-id">配列{match.cylinderId}</span>
               <span class="cylinder-name">{match.cylinderName}</span>
@@ -275,59 +267,61 @@
             <div class="match-sub">
               <span class="remaining">残り{match.remainingCards.length}枚</span>
             </div>
-          </button>
+          </div>
         {/each}
       </div>
     </section>
   {/if}
 
-  <!-- 次以降のカード表示 -->
-  {#if selectedMatch}
-    <section class="sequence-section">
-      <div class="sequence-header">
-        <h2>{selectedMatch.cylinderName}</h2>
-        <button class="back-btn" on:click={() => selectedMatch = null}>
-          ← 候補一覧に戻る
-        </button>
-      </div>
+  <!-- 次以降のカード表示（2枚目入力後、全シリンダー表示） -->
+  {#if matches.length > 0 && secondCardNo}
+    {#each matches as match, matchIndex}
+      <section class="sequence-section" class:second-cylinder={matchIndex > 0}>
+        <div class="sequence-header">
+          <div class="cylinder-header-badge">
+            <span class="cylinder-id-large">配列{match.cylinderId}</span>
+            <span class="cylinder-name-sub">{match.cylinderName}</span>
+          </div>
+        </div>
 
-      <h3>次以降のカード ({selectedMatch.remainingCards.length}枚)</h3>
-      <div class="sequence-cards">
-        {#each selectedMatch.remainingCards as cardNo, i}
-          {@const card = getCard(cardNo)}
-          {#if isSpecialCard(cardNo)}
-            <!-- サプライズランダムなど特殊カード -->
-            <div class="card-item special-card">
-              <div class="card-order">{i + 1}</div>
-              <div class="special-card-face">
-                <span class="special-icon">?</span>
-                <span class="special-label">サプライズ</span>
+        <h3>次以降のカード ({match.remainingCards.length}枚)</h3>
+        <div class="sequence-cards">
+          {#each match.remainingCards as cardNo, i}
+            {@const card = getCard(cardNo)}
+            {#if isSpecialCard(cardNo)}
+              <!-- サプライズランダムなど特殊カード -->
+              <div class="card-item special-card">
+                <div class="card-order">{i + 1}</div>
+                <div class="special-card-face">
+                  <span class="special-icon">?</span>
+                  <span class="special-label">サプライズ</span>
+                </div>
+                <div class="card-info">
+                  <span class="card-no special">SP</span>
+                  <span class="card-name special">ランダム</span>
+                  <span class="card-rarity">?</span>
+                </div>
               </div>
-              <div class="card-info">
-                <span class="card-no special">SP</span>
-                <span class="card-name special">ランダム</span>
-                <span class="card-rarity">?</span>
-              </div>
-            </div>
-          {:else if card}
-            <button class="card-item" class:rarity-4={card.rarity === 4} on:click={() => showCardPreview(card)}>
-              <div class="card-order">{i + 1}</div>
-              <img
-                src={getCardImageUrl(card)}
-                alt={card.name}
-                loading="lazy"
-                on:error={(e) => { e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect fill=%22%23eee%22 width=%22100%22 height=%22140%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23999%22%3ENo Image%3C/text%3E%3C/svg%3E'; }}
-              />
-              <div class="card-info">
-                <span class="card-no">{card.no}</span>
-                <span class="card-name">{card.name}</span>
-                <span class="card-rarity">{getRarityStars(card.rarity)}</span>
-              </div>
-            </button>
-          {/if}
-        {/each}
-      </div>
-    </section>
+            {:else if card}
+              <button class="card-item" class:rarity-4={card.rarity === 4} on:click={() => showCardPreview(card)}>
+                <div class="card-order">{i + 1}</div>
+                <img
+                  src={getCardImageUrl(card)}
+                  alt={card.name}
+                  loading="lazy"
+                  on:error={(e) => { e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect fill=%22%23eee%22 width=%22100%22 height=%22140%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23999%22%3ENo Image%3C/text%3E%3C/svg%3E'; }}
+                />
+                <div class="card-info">
+                  <span class="card-no">{card.no}</span>
+                  <span class="card-name">{card.name}</span>
+                  <span class="card-rarity">{getRarityStars(card.rarity)}</span>
+                </div>
+              </button>
+            {/if}
+          {/each}
+        </div>
+      </section>
+    {/each}
   {/if}
 
   {#if matches.length === 0 && firstCardNo}
@@ -781,19 +775,29 @@
     margin-bottom: 16px;
   }
 
-  .back-btn {
-    padding: 10px 18px;
-    background: #f5f5f5;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #666;
-    cursor: pointer;
+  .cylinder-header-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
-  .back-btn:active {
-    background: #eee;
+  .cylinder-id-large {
+    background: #ff69b4;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .cylinder-name-sub {
+    color: #666;
+    font-size: 14px;
+  }
+
+  .second-cylinder {
+    border-top: 3px dashed #ffb6c1;
+    padding-top: 16px;
   }
 
   h3 {
