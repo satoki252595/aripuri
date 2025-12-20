@@ -193,7 +193,6 @@
         <div class="input-row">
           <input
             type="text"
-            inputmode="numeric"
             placeholder="No"
             bind:value={cyl1FirstCardNo}
             on:input={handleCyl1FirstSearch}
@@ -206,6 +205,11 @@
             <span class="card-name">{cyl1FirstCard.name}</span>
           {/if}
         </div>
+        <div class="p-card-btns">
+          {#each pCards as pCard}
+            <button class="p-btn" on:click={() => selectPCard(pCard.no, 1, 'first')}>{pCard.no}</button>
+          {/each}
+        </div>
       </div>
 
       {#if cyl1Matches.length > 0}
@@ -214,7 +218,6 @@
           <div class="input-row">
             <input
               type="text"
-              inputmode="numeric"
               placeholder="No"
               bind:value={cyl1SecondCardNo}
               on:input={handleCyl1SecondSearch}
@@ -231,16 +234,23 @@
           {#if cyl1PossibleNextCards.length > 0 && !cyl1SecondCardNo}
             <div class="suggestions">
               <p class="suggestions-label">候補:</p>
-              <div class="suggestions-list">
+              <div class="suggestions-grid">
                 {#each cyl1PossibleNextCards as card}
-                  <button
-                    class="suggestion-btn"
-                    class:rarity-4={card.rarity === 4}
-                    class:special={isSpecialCard(card.no)}
-                    on:click={() => selectCyl1Suggestion(card.no)}
-                  >
-                    {isSpecialCard(card.no) ? 'SP' : card.no}
-                  </button>
+                  {#if isSpecialCard(card.no)}
+                    <button class="suggestion-card special" on:click={() => selectCyl1Suggestion(card.no)}>
+                      <div class="suggestion-special">?</div>
+                      <span>SP</span>
+                    </button>
+                  {:else}
+                    <button
+                      class="suggestion-card"
+                      class:rarity-4={card.rarity === 4}
+                      on:click={() => selectCyl1Suggestion(card.no)}
+                    >
+                      <img src={getCardImageUrl(card)} alt={card.name} />
+                      <span>{card.no}</span>
+                    </button>
+                  {/if}
                 {/each}
               </div>
             </div>
@@ -293,7 +303,6 @@
         <div class="input-row">
           <input
             type="text"
-            inputmode="numeric"
             placeholder="No"
             bind:value={cyl2FirstCardNo}
             on:input={handleCyl2FirstSearch}
@@ -306,6 +315,11 @@
             <span class="card-name">{cyl2FirstCard.name}</span>
           {/if}
         </div>
+        <div class="p-card-btns">
+          {#each pCards as pCard}
+            <button class="p-btn" on:click={() => selectPCard(pCard.no, 2, 'first')}>{pCard.no}</button>
+          {/each}
+        </div>
       </div>
 
       {#if cyl2Matches.length > 0}
@@ -314,7 +328,6 @@
           <div class="input-row">
             <input
               type="text"
-              inputmode="numeric"
               placeholder="No"
               bind:value={cyl2SecondCardNo}
               on:input={handleCyl2SecondSearch}
@@ -331,16 +344,23 @@
           {#if cyl2PossibleNextCards.length > 0 && !cyl2SecondCardNo}
             <div class="suggestions">
               <p class="suggestions-label">候補:</p>
-              <div class="suggestions-list">
+              <div class="suggestions-grid">
                 {#each cyl2PossibleNextCards as card}
-                  <button
-                    class="suggestion-btn"
-                    class:rarity-4={card.rarity === 4}
-                    class:special={isSpecialCard(card.no)}
-                    on:click={() => selectCyl2Suggestion(card.no)}
-                  >
-                    {isSpecialCard(card.no) ? 'SP' : card.no}
-                  </button>
+                  {#if isSpecialCard(card.no)}
+                    <button class="suggestion-card special" on:click={() => selectCyl2Suggestion(card.no)}>
+                      <div class="suggestion-special">?</div>
+                      <span>SP</span>
+                    </button>
+                  {:else}
+                    <button
+                      class="suggestion-card"
+                      class:rarity-4={card.rarity === 4}
+                      on:click={() => selectCyl2Suggestion(card.no)}
+                    >
+                      <img src={getCardImageUrl(card)} alt={card.name} />
+                      <span>{card.no}</span>
+                    </button>
+                  {/if}
                 {/each}
               </div>
             </div>
@@ -577,7 +597,30 @@
     white-space: nowrap;
   }
 
-  /* サジェスト - コンパクト */
+  /* Pカードボタン */
+  .p-card-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+  }
+
+  .p-btn {
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    border: 1px solid #e91e63;
+    border-radius: 4px;
+    background: #fce4ec;
+    color: #c2185b;
+    cursor: pointer;
+  }
+
+  .p-btn:active {
+    background: #f8bbd9;
+  }
+
+  /* サジェスト - 画像付きグリッド */
   .suggestions {
     margin-top: 6px;
     padding: 6px;
@@ -591,32 +634,64 @@
     margin: 0 0 4px 0;
   }
 
-  .suggestions-list {
-    display: flex;
-    flex-wrap: wrap;
+  .suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 4px;
   }
 
-  .suggestion-btn {
-    padding: 4px 8px;
-    font-size: 12px;
-    font-weight: bold;
+  .suggestion-card {
+    background: white;
     border: 2px solid #ddd;
     border-radius: 6px;
-    background: white;
+    padding: 2px;
     cursor: pointer;
-    min-width: 32px;
+    text-align: center;
   }
 
-  .suggestion-btn.rarity-4 {
+  .suggestion-card img {
+    width: 100%;
+    aspect-ratio: 5/7;
+    object-fit: cover;
+    border-radius: 3px;
+  }
+
+  .suggestion-card span {
+    display: block;
+    font-size: 9px;
+    font-weight: bold;
+    color: #666;
+    margin-top: 1px;
+  }
+
+  .suggestion-card.rarity-4 {
     border-color: #ffd700;
     background: #fffef0;
+  }
+
+  .suggestion-card.rarity-4 span {
     color: #b8860b;
   }
 
-  .suggestion-btn.special {
+  .suggestion-card.special {
     border-color: #9c27b0;
     background: #f3e5f5;
+  }
+
+  .suggestion-special {
+    width: 100%;
+    aspect-ratio: 5/7;
+    background: linear-gradient(135deg, #9c27b0, #e91e63);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .suggestion-card.special span {
     color: #9c27b0;
   }
 
@@ -787,6 +862,19 @@
 
     .card-name {
       font-size: 13px;
+    }
+
+    .p-btn {
+      padding: 3px 8px;
+      font-size: 11px;
+    }
+
+    .suggestions-grid {
+      grid-template-columns: repeat(6, 1fr);
+    }
+
+    .suggestion-card span {
+      font-size: 10px;
     }
 
     .cards-grid {
