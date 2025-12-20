@@ -414,142 +414,152 @@
   }
 
   main {
-    max-width: 100%;
-    padding: 12px;
-    padding-bottom: 100px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 8px;
+    padding-bottom: 80px;
   }
 
   header {
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   h1 {
     color: #ff69b4;
-    font-size: 20px;
+    font-size: 18px;
     margin: 0;
   }
 
   .subtitle {
     color: #888;
-    font-size: 12px;
-    margin: 4px 0 0 0;
+    font-size: 11px;
+    margin: 2px 0 0 0;
   }
 
   /* ガイド */
   .guide-section {
     background: white;
-    border-radius: 16px;
-    padding: 14px;
-    margin-bottom: 12px;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
     box-shadow: 0 2px 8px rgba(255, 105, 180, 0.1);
   }
 
   .guide-section h2 {
-    font-size: 14px;
+    font-size: 13px;
     color: #ff69b4;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
   }
 
   .guide-text {
-    font-size: 13px;
+    font-size: 12px;
     color: #555;
-    margin: 0 0 6px 0;
-    line-height: 1.5;
+    margin: 0 0 4px 0;
+    line-height: 1.4;
   }
 
   .guide-text strong {
     color: #ff69b4;
   }
 
-  /* シリンダーコンテナ */
+  /* シリンダーコンテナ - モバイルファースト横並び */
   .cylinders-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
   }
 
   .cylinder-section {
     background: white;
-    border-radius: 16px;
-    padding: 14px;
+    border-radius: 12px;
+    padding: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    min-width: 0; /* グリッドオーバーフロー防止 */
   }
 
   .cylinder-1-theme {
-    border-left: 4px solid #ff69b4;
+    border-top: 3px solid #ff69b4;
   }
 
   .cylinder-2-theme {
-    border-left: 4px solid #42a5f5;
+    border-top: 3px solid #42a5f5;
   }
 
   .cylinder-title {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    text-align: center;
   }
 
   .cylinder-badge-1 {
     background: #ff69b4;
     color: white;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
     font-weight: bold;
   }
 
   .cylinder-badge-2 {
     background: #42a5f5;
     color: white;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
     font-weight: bold;
   }
 
-  /* 入力グループ */
+  /* 入力グループ - コンパクト */
   .input-group {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .input-group label {
     display: block;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 600;
-    color: #666;
-    margin-bottom: 6px;
+    color: #888;
+    margin-bottom: 4px;
   }
 
   .input-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
+    flex-wrap: wrap;
   }
 
   input {
-    width: 60px;
-    height: 48px;
-    font-size: 20px;
+    width: 50px;
+    height: 40px;
+    font-size: 18px;
     font-weight: bold;
     border: 2px solid #ddd;
-    border-radius: 10px;
+    border-radius: 8px;
     text-align: center;
     outline: none;
+    flex-shrink: 0;
   }
 
-  input:focus {
+  .cylinder-1-theme input:focus {
     border-color: #ff69b4;
   }
 
+  .cylinder-2-theme input:focus {
+    border-color: #42a5f5;
+  }
+
   .card-preview-btn {
-    width: 48px;
-    height: 67px;
+    width: 36px;
+    height: 50px;
     border: none;
     padding: 0;
     background: none;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 4px;
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    flex-shrink: 0;
   }
 
   .card-preview-btn img {
@@ -559,39 +569,43 @@
   }
 
   .card-name {
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 600;
     color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  /* サジェスト */
+  /* サジェスト - コンパクト */
   .suggestions {
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 6px;
+    padding: 6px;
     background: #f9f9f9;
-    border-radius: 10px;
+    border-radius: 8px;
   }
 
   .suggestions-label {
-    font-size: 11px;
+    font-size: 10px;
     color: #888;
-    margin: 0 0 8px 0;
+    margin: 0 0 4px 0;
   }
 
   .suggestions-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px;
   }
 
   .suggestion-btn {
-    padding: 6px 12px;
-    font-size: 14px;
+    padding: 4px 8px;
+    font-size: 12px;
     font-weight: bold;
     border: 2px solid #ddd;
-    border-radius: 8px;
+    border-radius: 6px;
     background: white;
     cursor: pointer;
+    min-width: 32px;
   }
 
   .suggestion-btn.rarity-4 {
@@ -608,43 +622,45 @@
 
   /* 結果表示 */
   .results {
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
     border-top: 1px solid #eee;
   }
 
   .result-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 6px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
   }
 
   .result-badge {
     background: #4caf50;
     color: white;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 10px;
     font-weight: bold;
   }
 
   .result-count {
-    font-size: 12px;
+    font-size: 10px;
     color: #888;
   }
 
+  /* カードグリッド - モバイル対応 */
   .cards-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
   }
 
   .card-item {
     background: white;
     border: 2px solid #eee;
-    border-radius: 8px;
-    padding: 4px;
+    border-radius: 6px;
+    padding: 3px;
     cursor: pointer;
     position: relative;
     text-align: center;
@@ -663,69 +679,126 @@
 
   .card-order {
     position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
+    top: 1px;
+    left: 1px;
+    width: 14px;
+    height: 14px;
     background: #ff69b4;
     color: white;
     border-radius: 50%;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .cylinder-2-theme .card-order {
+    background: #42a5f5;
   }
 
   .card-item img {
     width: 100%;
     aspect-ratio: 5/7;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: 3px;
   }
 
   .special-face {
     width: 100%;
     aspect-ratio: 5/7;
     background: linear-gradient(135deg, #9c27b0, #e91e63);
-    border-radius: 4px;
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
   }
 
   .card-label {
     display: block;
-    font-size: 10px;
+    font-size: 9px;
     color: #666;
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
   .more-cards {
-    font-size: 12px;
+    font-size: 10px;
     color: #888;
     text-align: center;
-    margin: 8px 0 0 0;
+    margin: 6px 0 0 0;
   }
 
   /* リセットボタン */
   .reset-btn {
     position: fixed;
-    bottom: 20px;
+    bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 12px 40px;
+    padding: 10px 32px;
     background: #ff69b4;
     color: white;
     border: none;
-    border-radius: 30px;
-    font-size: 16px;
+    border-radius: 24px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(255, 105, 180, 0.4);
+    z-index: 100;
+  }
+
+  /* タブレット以上でより広いレイアウト */
+  @media (min-width: 600px) {
+    main {
+      padding: 16px;
+      padding-bottom: 100px;
+    }
+
+    h1 {
+      font-size: 22px;
+    }
+
+    .cylinders-container {
+      gap: 12px;
+    }
+
+    .cylinder-section {
+      padding: 16px;
+    }
+
+    .cylinder-badge-1,
+    .cylinder-badge-2 {
+      font-size: 14px;
+      padding: 6px 14px;
+    }
+
+    input {
+      width: 60px;
+      height: 48px;
+      font-size: 20px;
+    }
+
+    .card-preview-btn {
+      width: 44px;
+      height: 62px;
+    }
+
+    .card-name {
+      font-size: 13px;
+    }
+
+    .cards-grid {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .card-order {
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+    }
   }
 
   /* モーダル */
@@ -740,14 +813,14 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    padding: 24px;
+    padding: 20px;
   }
 
   .modal-content {
     background: white;
     border-radius: 16px;
-    padding: 16px;
-    max-width: 280px;
+    padding: 14px;
+    max-width: 260px;
     width: 100%;
     position: relative;
   }
@@ -759,31 +832,31 @@
 
   .modal-info {
     text-align: center;
-    margin-top: 12px;
+    margin-top: 10px;
   }
 
   .modal-info h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     color: #333;
   }
 
   .modal-info p {
     margin: 4px 0 0 0;
     color: #ffc107;
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .close-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 32px;
-    height: 32px;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
     border: none;
     background: #f0f0f0;
     border-radius: 50%;
-    font-size: 20px;
+    font-size: 18px;
     cursor: pointer;
     display: flex;
     align-items: center;
